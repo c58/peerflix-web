@@ -30,13 +30,11 @@ $(document).ready(function() {
             firstRun = false;
           }
         }
+
+        setTimeout(updateStatus, 1000);
       }, dataType: 'json' });
     };
-
     updateStatus();
-    setInterval(function() {
-      updateStatus();
-    }, 5000);
   })();
 
   var showPauseIcon = function(paused) {
