@@ -161,10 +161,13 @@ server.route({
           buffer: (1.5 * 1024 * 1024).toString()
         });
 
+        connection.server.once('error', function() {
+					connection.server.listen(0);
+				});
+
         connection.server.on('listening', function() {
           if (!connection) { return reply(Boom.badRequest('Stream was interrupted')); }
           omx.play('http://127.0.0.1:' + connection.server.address().port + '/');
-          omx.on('ended', function() { stop(); });
           return reply({ port: connection.server.address().port });
         });
       });
@@ -188,7 +191,21 @@ server.route({
   method: 'GET',
   path: '/status',
   handler: function (request, reply) {
-    return reply(states[omx.getState()]);
+  	const status = { status: states[omx.getState()] };
+
+  	if (connection) {
+  		Object.assign(status, {
+  			downloadSpeed: connection.swarm.downloadSpeed(),
+				uploadSpeed: connection.swarm.uploadSpeed(),
+				paused: connection.swarm.paused,
+				downloaded: connection.swarm.downloaded,
+				uploaded: connection.swarm.uploaded,
+				name: connection.torrent.name,
+				size: connection.torrent.length
+  		});
+  	}
+
+    return reply(status);
   }
 });
 

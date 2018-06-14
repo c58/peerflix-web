@@ -5,8 +5,8 @@ $(document).ready(function() {
   (function poll() {
     var firstRun = true;
     var updateStatus = function() {
-      $.ajax({ url: 'status', success: function(status) {
-        if (status === 'PAUSED') {
+      $.ajax({ url: 'status', success: function(res) {
+        if (res.status === 'PAUSED') {
           $('#stop-wrapper').show();
           $('#start-wrapper').hide();
           $('#omx-controls').show();
@@ -16,7 +16,7 @@ $(document).ready(function() {
             firstRun = false;
           }
         }
-        else if (status === 'IDLE') {
+        else if (res.status === 'IDLE') {
           isPaused = true;
           $('#omx-controls').hide();
         }
@@ -30,7 +30,7 @@ $(document).ready(function() {
             firstRun = false;
           }
         }
-      }, dataType: 'text' });
+      }, dataType: 'json' });
     };
 
     updateStatus();
