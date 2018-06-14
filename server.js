@@ -194,15 +194,17 @@ server.route({
   	const status = { status: states[omx.getState()] };
 
   	if (connection) {
-  		Object.assign(status, {
-  			downloadSpeed: connection.swarm.downloadSpeed(),
-				uploadSpeed: connection.swarm.uploadSpeed(),
-				paused: connection.swarm.paused,
-				downloaded: connection.swarm.downloaded,
-				uploaded: connection.swarm.uploaded,
-				name: connection.torrent.name,
-				size: connection.torrent.length
-  		});
+  		try {
+	  		Object.assign(status, {
+	  			downloadSpeed: connection.swarm.downloadSpeed(),
+					uploadSpeed: connection.swarm.uploadSpeed(),
+					paused: connection.swarm.paused,
+					downloaded: connection.swarm.downloaded,
+					uploaded: connection.swarm.uploaded,
+					name: connection.torrent.name,
+					size: connection.torrent.length
+	  		});
+	  	} catch (e) {}
   	}
 
     return reply(status);
