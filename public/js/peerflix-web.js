@@ -59,7 +59,9 @@ $(document).ready(function() {
     showPauseIcon(true);
     var url = $('#torrent-url').val();
     $('#torrent-url').val('');
-    $.post('play', { 'url': url })
+    $.post('play', { 'url': url }).done(function(res) {
+      window.open('http://' + location.hostname + ':' + res.port, '_blank');
+    })
     .fail(function() {
       $('#loader').hide();
       $('#stop-wrapper').hide();
@@ -95,21 +97,25 @@ $(document).ready(function() {
   $('#search-torrents').click(function() {
     var searchStr = $('#torrent-query').val();
     if (!searchStr.length) { $('#torrent-table').empty(); return; }
-    $.get('query', { 'q': searchStr })
-    .done(function(searchResults) {
-      $('#torrent-table').html(searchResults.length ? '<thead><tr><th width="80%">Title</th><th width="10%" style="text-align: center;"><span class="glyphicon glyphicon-menu-up"></span></th><th width="10%" style="text-align: center;"><span class="glyphicon glyphicon-menu-down"></span></th></tr></thead>' : '');
-      searchResults.forEach(function(result) {
-        var title = result.title;
-        var torrentLink = result.torrentLink;
-        var seeds = result.seeds;
-        var leechs = result.leechs;
-        $('#torrent-table').append('<tr><td style="word-break: break-all;"><a class="torrent-link" href="' + torrentLink + '">' + title + '</a></td><td style="text-align: center;"><span style="color:#00CB95;">' + seeds + '</span></td><td style="text-align: center;"><span style="color:#FF646C;">' + leechs + '</span></td></tr>');
+    $.get('https://tv-v2.api-fetch.website/movies/1', { 'keywords': searchStr })
+      .done(function(searchResults) {
+        $('#torrent-table').html(searchResults.length ? '<thead><tr><th width="80%">Title</th><th width="10%" style="text-align: center;"><span class="glyphicon glyphicon-menu-up"></span></th><th width="10%" style="text-align: center;"><span class="glyphicon glyphicon-menu-down"></span></th></tr></thead>' : '');
+        searchResults.forEach(function(result) {
+          var title = result.title;
+          var quality = result.torrents.en;
+          Object.keys(quality).forEach(function(key) {
+            var torrentLink = quality[key].url;
+            var seeds = quality[key].seed;
+            var leechs = quality[key].peer;
+            var filesize = quality[key].filesize;
+            $('#torrent-table').append('<tr><td style="word-break: break-all;"><a class="torrent-link" href="' + torrentLink + '">[' + key + '] ' + title + ' - ' + filesize + '</a></td><td style="text-align: center;"><span style="color:#00CB95;">' + seeds + '</span></td><td style="text-align: center;"><span style="color:#FF646C;">' + leechs + '</span></td></tr>');
+          });
+        });
+        if (!searchResults.length) { $('#torrent-table').empty(); }
+      })
+      .fail(function() {
+        $('#torrent-table').empty();
       });
-      if (!searchResults.length) { $('#torrent-table').empty(); }
-    })
-    .fail(function() {
-      $('#torrent-table').empty();
-    });
   });
 
   $('#torrent-table').on('click', '.torrent-link', function(e) {
