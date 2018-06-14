@@ -167,7 +167,7 @@ server.route({
 
         connection.server.on('listening', function() {
           if (!connection) { return reply(Boom.badRequest('Stream was interrupted')); }
-          omx.play('http://127.0.0.1:' + connection.server.address().port + '/');
+          omx.play('http://localhost:' + connection.server.address().port + '/', ['-o', 'alsa']);
           return reply({ port: connection.server.address().port });
         });
       });
